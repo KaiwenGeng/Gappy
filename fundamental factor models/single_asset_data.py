@@ -31,7 +31,29 @@ class UnivariateReturn:
     def winsorize_series(self, s, lower=0.01, upper=0.99):
         lo, hi = s.quantile([lower, upper])
         return s.clip(lower=lo, upper=hi)
-
+    
+    def get_market_data(self):
+        szzs = ak.stock_zh_a_hist(symbol='000001', start_date=self.start_date, end_date=self.end_date, period=self.period, adjust=self.adjust)
+        szzs['return'] = szzs['涨跌幅'] / 100.0
+        szzs.drop(columns=['涨跌幅'], inplace=True)
+        szzs.drop(columns=['开盘'], inplace=True)
+        szzs.drop(columns=['收盘'], inplace=True)
+        szzs.drop(columns=['最高'], inplace=True)
+        szzs.drop(columns=['最低'], inplace=True)
+        szzs.drop(columns=['换手率'], inplace=True)
+        # add prefix to the column names, except for the date column
+        szzs.rename(columns=lambda x: f'szzs_{x}' if x != '日期' else x, inplace=True)
+        # sczs = ak.stock_zh_a_hist(symbol='399006', start_date=self.start_date, end_date=self.end_date, period=self.period, adjust=self.adjust)
+        # sczs['return'] = sczs['涨跌幅'] / 100.0
+        # sczs.drop(columns=['涨跌幅'], inplace=True)
+        # sczs.drop(columns=['开盘'], inplace=True)
+        # sczs.drop(columns=['收盘'], inplace=True)
+        # sczs.drop(columns=['最高'], inplace=True)
+        # sczs.drop(columns=['最低'], inplace=True)
+        # sczs.drop(columns=['换手率'], inplace=True)
+        # # add prefix to the column names, except for the date column
+        # sczs.rename(columns=lambda x: f'sczs_{x}' if x != '日期' else x, inplace=True)
+        return szzs
         
     def get_stock_data(self):
         '''
@@ -57,6 +79,16 @@ class UnivariateReturn:
         else:
             result['return'] = result['收盘'].pct_change()
         result['return'] = self.winsorize_series(result['return'])
+        # remove the “股票代码” column
+        result.drop(columns=['股票代码'], inplace=True)
+        # remove others that are not needed
+        result.drop(columns=['涨跌幅'], inplace=True)
+        result.drop(columns=['开盘'], inplace=True)
+        result.drop(columns=['收盘'], inplace=True)
+        result.drop(columns=['最高'], inplace=True)
+        result.drop(columns=['最低'], inplace=True)
+        result.drop(columns=['换手率'], inplace=True)
+        
         return result
     
     def generate_excess_return(self):
@@ -91,7 +123,13 @@ class UnivariateReturn:
 
         return merged_data
     
-    
+    def add_market_features(self, df):
+        szzs = self.get_market_data()
+        df['日期'] = pd.to_datetime(df['日期'])
+        szzs['日期'] = pd.to_datetime(szzs['日期'])
+        # merge the market data with the stock data
+        df = pd.merge(df, szzs, how='left', on='日期')
+        return df
 
     def add_volatility_features(self, df):
         
@@ -114,6 +152,7 @@ class UnivariateReturn:
     def process_data(self):
         df = self.generate_excess_return()
         df = self.add_volatility_features(df)
+        df = self.add_market_features(df)
         df = self.add_categorical_features(df)
         # rename the "日期" column to "date"
         df.rename(columns={'日期': 'date'}, inplace=True)

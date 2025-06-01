@@ -53,7 +53,7 @@ class UnivariateStatsAnalysis:
         plt.tight_layout()
         plt.show()
     
-    def distribution(self):
+    def log_return_distribution(self):
         series = self.get_log_return().dropna()
         # calculate the kurtosis and skewness
         kurtosis = series.kurtosis()
@@ -96,8 +96,9 @@ class UnivariateStatsAnalysis:
             
 
 if __name__ == '__main__':
-    stock_code = '600428'
+    stock_code = '600096'
     univariate_stats_analysis = UnivariateStatsAnalysis(stock_code)
 
     # univariate_stats_analysis.plot_series_seperately()
-    univariate_stats_analysis.plot_series_together()
+    # univariate_stats_analysis.plot_series_together()
+    univariate_stats_analysis.plot_series_seperately(features_of_interest = ['cumulative excess return'])

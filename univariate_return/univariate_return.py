@@ -70,7 +70,7 @@ class Univarite_Volatility:
         return sigma / 100.0
 
 class UnivariateReturn:
-    def __init__(self, stock_code, start_date='20000101', end_date='22220523', period='daily', adjust='qfq'):
+    def __init__(self, stock_code, start_date='20190101', end_date='22220523', period='daily', adjust='hfq'):
         self.stock_code = stock_code
         self.start_date = start_date
         self.end_date = end_date
@@ -88,18 +88,23 @@ class UnivariateReturn:
 
         
     def get_stock_data(self):
+        '''
+        for categorical features, we need to use one-hot encoding
+        '''
         ## 默认特征
         ## 日期    股票代码    开盘    收盘    最高    最低     成交量           成交额     振幅    涨跌幅   涨跌额    换手率
         result = ak.stock_zh_a_hist(symbol=self.stock_code, start_date=self.start_date, end_date=self.end_date, period=self.period, adjust=self.adjust)
         
         
         ## check if there's 0 in 收盘
-        if result['收盘'].isin([0]).any():
-            print("There are 0 in the the close column")
-            ## ffill 0 with the previous value
-            result.replace(0, method='ffill', inplace=True) 
-        else:
-            print("There are no 0 in the the close column")
+        if self.adjust != 'qfq':
+            # 前复权可能出现0 甚至负值
+            if result['收盘'].isin([0]).any():
+                print("There are 0 in the the close column")
+                ## ffill 0 with the previous value
+                result.replace(0, method='ffill', inplace=True) 
+            else:
+                print("There are no 0 in the the close column")
         
 
         ## generate the return column
@@ -153,7 +158,7 @@ class UnivariateReturn:
         return df
 
 if __name__ == '__main__':
-    stock_code = '600428'
+    stock_code = '600096'
     univariate_return = UnivariateReturn(stock_code=stock_code)
     
     ## save the result to a csv file

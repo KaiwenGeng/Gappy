@@ -82,12 +82,12 @@ class UnivariateReturn:
         # remove the “股票代码” column
         result.drop(columns=['股票代码'], inplace=True)
         # remove others that are not needed
-        result.drop(columns=['涨跌幅'], inplace=True)
-        result.drop(columns=['开盘'], inplace=True)
-        result.drop(columns=['收盘'], inplace=True)
-        result.drop(columns=['最高'], inplace=True)
-        result.drop(columns=['最低'], inplace=True)
-        result.drop(columns=['换手率'], inplace=True)
+        # result.drop(columns=['涨跌幅'], inplace=True)
+        # result.drop(columns=['开盘'], inplace=True)
+        # result.drop(columns=['收盘'], inplace=True)
+        # result.drop(columns=['最高'], inplace=True)
+        # result.drop(columns=['最低'], inplace=True)
+        # result.drop(columns=['换手率'], inplace=True)
         
         return result
     
@@ -152,8 +152,9 @@ class UnivariateReturn:
     def process_data(self):
         df = self.generate_excess_return()
         df = self.add_volatility_features(df)
-        df = self.add_market_features(df)
+        # df = self.add_market_features(df)
         df = self.add_categorical_features(df)
+        print("the shape of the data is", df.shape)
         # rename the "日期" column to "date"
         df.rename(columns={'日期': 'date'}, inplace=True)
         return df

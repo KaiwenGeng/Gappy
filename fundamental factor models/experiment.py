@@ -55,38 +55,38 @@ class Experiment:
         optimizer = optim.Adam(model.parameters(), lr=self.args.learning_rate)
         print("start training")
         early_stopper = EarlyStopper(patience=self.args.patience, min_delta=self.args.min_delta)
-        # for epoch in range(self.args.epochs):
-        #     model.train()
-        #     running_loss = 0.0
-        #     for batch_idx, (exposures, returns) in enumerate(self.train_loader):
-        #         '''
-        #         input: exposure matrix observed at t-1 and the return at t
-        #         output: the return at t; the model itself can be comprehend as the "factor return"
-        #         '''
-        #         exposures = exposures.to(device)
-        #         returns = returns.to(device)
+        for epoch in range(self.args.epochs):
+            model.train()
+            running_loss = 0.0
+            for batch_idx, (exposures, returns) in enumerate(self.train_loader):
+                '''
+                input: exposure matrix observed at t-1 and the return at t
+                output: the return at t; the model itself can be comprehend as the "factor return"
+                '''
+                exposures = exposures.to(device)
+                returns = returns.to(device)
 
 
-        #         optimizer.zero_grad()
-        #         r_hat = model(exposures)
-        #         # print("the value of r_hat: ", r_hat)
-        #         # print("-----------------------")
-        #         loss  = criterion(r_hat, returns)
-        #         loss.backward()
-        #         optimizer.step()
+                optimizer.zero_grad()
+                r_hat = model(exposures)
+                # print("the value of r_hat: ", r_hat)
+                # print("-----------------------")
+                loss  = criterion(r_hat, returns)
+                loss.backward()
+                optimizer.step()
 
-        #         running_loss += loss.item() * exposures.size(0)   # sum over batches
+                running_loss += loss.item() * exposures.size(0)   # sum over batches
 
-        #     train_loss = running_loss / len(self.train_loader.dataset)
-        #     print(f"Epoch {epoch:02d}  |  train MSE {train_loss:.5f}")
-        #     val_loss = self.evaluate(model, criterion, device)
-        #     print(f"Epoch {epoch:02d}  |  val MSE {val_loss:.5f}")
-        #     if early_stopper.early_stop(val_loss):
-        #         print(f"Early stopping at epoch {epoch}")
-        #         # save the model
-        #         os.makedirs("checkpoints", exist_ok=True)
-        #         torch.save(model.state_dict(), f"checkpoints/best_model.pth")
-        #         break
+            train_loss = running_loss / len(self.train_loader.dataset)
+            print(f"Epoch {epoch:02d}  |  train MSE {train_loss:.5f}")
+            val_loss = self.evaluate(model, criterion, device)
+            print(f"Epoch {epoch:02d}  |  val MSE {val_loss:.5f}")
+            if early_stopper.early_stop(val_loss):
+                print(f"Early stopping at epoch {epoch}")
+                # save the model
+                os.makedirs("checkpoints", exist_ok=True)
+                torch.save(model.state_dict(), f"checkpoints/best_model.pth")
+                break
         
         self.test(model, criterion, device)
 
@@ -127,6 +127,7 @@ class Experiment:
         all_returns = np.concatenate(all_returns, axis=0)
         print(all_predictions.shape)
         print(all_returns.shape)
+        ssss
         mu_r    = self.scaler.mean_[-1]
         sigma_r = self.scaler.scale_[-1]
         all_predictions = all_predictions * sigma_r + mu_r

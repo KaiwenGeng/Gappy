@@ -22,6 +22,9 @@ class AssetsDataFactory:
 
         
     def get_stock_data(self, asset_name):
+        '''
+        for categorical features, we need to use one-hot encoding
+        '''
         ## 默认特征
         ## 日期    股票代码    开盘    收盘    最高    最低     成交量           成交额     振幅    涨跌幅   涨跌额    换手率
         result = ak.stock_zh_a_hist(symbol=asset_name, start_date=self.start_date, end_date=self.end_date, period=self.period, adjust=self.adjust)

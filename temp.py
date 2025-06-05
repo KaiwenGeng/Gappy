@@ -1,25 +1,33 @@
-class StockFeatureMixer(nn.Module):
-    """
-    Collapse F features → 1 scalar per stock, separately for every stock.
-    Input : (batch, T, S*F)
-    Output: (batch, T, S)
-    """
-    def __init__(self, num_stocks: int, num_features: int, bias: bool = True):
+import torch, torch.nn as nn, torch.nn.functional as F
+
+class StockLSTMAttention(nn.Module):
+    def __init__(self, nvars=6, hidden=128, n_layers=2, dropout=0.2):
         super().__init__()
-        self.S = num_stocks
-        self.F = num_features
-        self.mixer = nn.Conv1d(
-            in_channels = num_stocks * num_features,
-            out_channels = num_stocks,          # 1 value per stock
-            kernel_size = 1,
-            groups = num_stocks,                # ⇐ independence
-            bias = bias
+        self.lstm = nn.LSTM(
+            input_size=nvars,
+            hidden_size=hidden,
+            num_layers=n_layers,
+            bidirectional=True,
+            batch_first=True,
+            dropout=dropout
+        )
+        self.attn = nn.Sequential(
+            nn.Linear(hidden * 2, hidden),
+            nn.Tanh(),
+            nn.Linear(hidden, 1)          # scores e_t
+        )
+        self.norm = nn.LayerNorm(hidden * 2)
+        self.mlp  = nn.Sequential(
+            nn.Linear(hidden * 2, 64),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(64, 1)
         )
 
-    def forward(self, x):
-        # x: (B, T, S*F)  -->  (B, S*F, T)
-        x = x.permute(0, 2, 1)
-        # grouped 1×1 conv: (B, S*F, T) -> (B, S, T)
-        x = self.mixer(x)
-        # back to (B, T, S)
-        return x.permute(0, 2, 1)
+    def forward(self, x):                  # x: [B, T, F]
+        h, _ = self.lstm(x)               # h: [B, T, 2H]
+        w = self.attn(h).squeeze(-1)      # [B, T]
+        α = torch.softmax(w, dim=-1).unsqueeze(-1)
+        context = (h * α).sum(dim=1)      # [B, 2H]
+        out = self.mlp(self.norm(context))# [B, 1]
+        return out

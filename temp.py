@@ -1,49 +1,69 @@
 import torch
-from torch import nn
+import torch.nn as nn
+import torch.nn.functional as F
 
-def weighted_mse_loss(output: torch.Tensor,
-                      target: torch.Tensor,
-                      weight: torch.Tensor,
-                      reduction: str = "mean") -> torch.Tensor:
+class WeightedMSELoss(nn.Module):
     """
-    Weighted mean–squared‑error loss.
-    
-    Args
-    ----
-    output : shape (N, 1) or (N,)
-    target : shape (N,)          —  true values
-    weight : shape (N,)          —  non‑negative per‑sample weights
-    reduction : "mean" | "sum" | "none"
-    
-    Returns
-    -------
-    Tensor — scalar unless reduction="none".
+    Mean‑squared‑error with optional per‑sample weights.
+
+    Forward signature:
+        loss = crit(input, target, weight=None)
+
+    • input  : (N, 1) or (N,)
+    • target : (N,)      – ground‑truth values
+    • weight : (N,) or None
     """
-    # flatten everything to (N,)
-    output = output.view(-1)
-    target = target.view(-1)
-    weight = weight.view(-1).to(output.dtype)
+    def __init__(self, reduction: str = "mean", eps: float = 1e-8):
+        super().__init__()
+        if reduction not in {"mean", "sum", "none"}:
+            raise ValueError("reduction must be 'mean', 'sum', or 'none'")
+        self.reduction = reduction
+        self.eps = eps                # tiny constant to avoid /0
 
-    loss_per_sample = weight * (output - target) ** 2
+    def forward(self,
+                input:  torch.Tensor,
+                target: torch.Tensor,
+                weight: torch.Tensor | None = None) -> torch.Tensor:
 
-    if reduction == "none":
-        return loss_per_sample
-    if reduction == "sum":
-        return loss_per_sample.sum()
-    if reduction == "mean":
-        return loss_per_sample.sum() / weight.sum()
-    raise ValueError("reduction must be 'mean', 'sum', or 'none'")
+        # If no weight is supplied, behave exactly like nn.MSELoss
+        if weight is None:
+            return F.mse_loss(input, target, reduction=self.reduction)
+
+        # Flatten everything → (N,)
+        input  = input.view(-1)
+        target = target.view(-1)
+        weight = weight.view(-1).to(input.dtype)
+
+        loss_per_sample = weight * (input - target) ** 2
+
+        if self.reduction == "none":
+            return loss_per_sample
+
+        if self.reduction == "sum":
+            return loss_per_sample.sum()
+
+        # self.reduction == "mean"
+        return loss_per_sample.sum() / (weight.sum() + self.eps)
 
 
-torch.manual_seed(0)
-N = 6
-ŷ = torch.randn(N, 1)
-y  = torch.randn(N)
-w  = torch.full((N,), 3.14)          # every weight is the same constant
+torch.manual_seed(42)
+N   = 8
+ŷ   = torch.randn(N, 1)
+y    = torch.randn(N)
+crit = WeightedMSELoss()           # default reduction='mean'
 
-mse_ref   = nn.MSELoss()(ŷ.squeeze(), y)
-mse_weighted = weighted_mse_loss(ŷ, y, w)
+# 1) All weights equal  → identical to nn.MSELoss
+w = torch.full((N,), 7.3)
+ref = nn.MSELoss()(ŷ.squeeze(), y)
+got = crit(ŷ, y, w)
+print(ref, got)
+assert torch.allclose(ref, got), "Should match nn.MSELoss when weights equal"
 
-print("Reference MSELoss :", mse_ref.item())
-print("Weighted MSELoss :", mse_weighted.item())
-assert torch.allclose(mse_ref, mse_weighted)
+# 2) Different weights  → matches hand calculation
+w = torch.tensor([1., 0.5, 2., 3., 1., 4., 1.2, 0.7])
+hand = (w * (ŷ.squeeze() - y) ** 2).sum() / w.sum()
+got  = crit(ŷ, y, w)
+print(hand, got)
+assert torch.allclose(hand, got), "Weighted mean incorrect"
+
+# 3) Other reductions

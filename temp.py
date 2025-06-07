@@ -84,3 +84,30 @@ hand = (w * F.smooth_l1_loss(ŷ.squeeze(), y, beta=1.0, reduction='none')).sum(
 got  = crit(ŷ, y, w)
 print(hand, got)
 assert torch.allclose(hand, got), "Weighted mean incorrect"
+
+
+
+def weighted_pearson_loss(pred, target, weight):
+    pred   = pred.flatten().to(torch.float32)
+    target = target.flatten().to(pred.dtype)
+    w      = weight.flatten().to(pred)
+
+    w_sum = w.sum()
+    if w_sum == 0:
+        return pred.new_tensor(0.)  # or raise
+
+    # weighted means
+    μ_p = (w * pred).sum()   / w_sum
+    μ_t = (w * target).sum() / w_sum
+
+    # centred
+    p_c = pred   - μ_p
+    t_c = target - μ_t
+
+    # weighted cov and var
+    cov = (w * p_c * t_c).sum()
+    var_p = (w * p_c**2).sum() + 1e-12
+    var_t = (w * t_c**2).sum() + 1e-12
+
+    ic = cov / torch.sqrt(var_p * var_t)
+    return -ic 

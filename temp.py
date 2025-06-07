@@ -111,3 +111,148 @@ def weighted_pearson_loss(pred, target, weight):
 
     ic = cov / torch.sqrt(var_p * var_t)
     return -ic 
+
+
+
+
+
+import copy, time, torch, optuna, numpy as np
+from torch import nn, optim
+from torch.utils.data import Subset, DataLoader
+from sklearn.model_selection import KFold            # or TimeSeriesSplit if chronological order matters
+from exp_long_term_forecast import Exp_Long_Term_Forecast   # your wrapper class
+
+# ---------------------------------------------------------------------
+def tune_timexer(
+        base_args,                         # argparse.Namespace or SimpleNamespace with *default* settings
+        train_loader,                      # your existing DataLoader (train split only)
+        n_trials       = 50,               # Optuna trial budget
+        n_splits       = 5,                # K‑folds
+        epochs_per_cv  = 5,                # quick inner‑loop training for each trial
+        device         = ("cuda" if torch.cuda.is_available() else "cpu"),
+        direction      = "minimize",       # minimize val MSE
+        seed           = 42
+    ):
+    """
+    Hyper‑parameter search for TimeXer using Optuna + K‑fold CV.
+    Returns (best_params: dict, study: optuna.study.Study).
+
+    The function touches *only* the data inside `train_loader`.
+    Test data remain unseen until the very end of your pipeline.
+    """
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    # ----------------------------------------------------------
+    # Helper: build & train one model on (train_idx, val_idx)
+    # ----------------------------------------------------------
+    def _run_fold(args, fold_id, train_idx, val_idx):
+        # Build fresh dataloaders from the original dataset
+        full_dataset = train_loader.dataset
+        tr_loader = DataLoader(Subset(full_dataset, train_idx),
+                               batch_size=args.batch_size,  # keep your original setting
+                               shuffle=True, num_workers=train_loader.num_workers)
+        val_loader = DataLoader(Subset(full_dataset, val_idx),
+                                batch_size=args.batch_size,
+                                shuffle=False, num_workers=train_loader.num_workers)
+
+        # ---------------------------
+        exp = Exp_Long_Term_Forecast(args)             # wrapper builds model/optim/loss
+        model = exp.model.to(device)
+        optimizer = optim.AdamW(model.parameters(),
+                                lr=args.learning_rate,
+                                weight_decay=args.weight_decay)
+        criterion = nn.MSELoss()
+
+        # quick training loop
+        model.train()
+        for ep in range(epochs_per_cv):
+            for xb, yb in tr_loader:
+                xb, yb = xb.to(device), yb.to(device)
+                optimizer.zero_grad()
+                out = model(xb)
+                loss = criterion(out, yb)
+                loss.backward()
+                optimizer.step()
+
+        # validation
+        model.eval()
+        val_losses = []
+        with torch.no_grad():
+            for xb, yb in val_loader:
+                xb, yb = xb.to(device), yb.to(device)
+                val_losses.append(criterion(model(xb), yb).item())
+        return float(np.mean(val_losses))
+
+    # ----------------------------------------------------------
+    # Optuna objective
+    # ----------------------------------------------------------
+    def objective(trial: optuna.trial.Trial):
+
+        # ---- sample hyper‑parameters ----
+        sampled = {
+            # architecture
+            "d_model"   : trial.suggest_categorical("d_model",  [32, 64, 128, 256, 512]),
+            "d_ffn"     : trial.suggest_categorical("d_ffn",    [64, 128, 256, 512, 1024]),
+            "n_heads"   : trial.suggest_categorical("n_heads",  [2, 4, 8]),
+            "e_layers"  : trial.suggest_int(         "e_layers", 1, 6),
+            "dropout"   : trial.suggest_float(       "dropout",  0.0, 0.5),
+            "patch_len" : trial.suggest_categorical("patch_len", [8, 16, 24, 32, 48]),
+
+            # optimiser
+            "learning_rate": trial.suggest_float("learning_rate", 1e-5, 5e-3, log=True),
+            "weight_decay" : trial.suggest_float("weight_decay",  1e-6, 1e-2, log=True),
+        }
+
+        # ---- populate a fresh args for this trial ----
+        args = copy.deepcopy(base_args)
+        for k, v in sampled.items():
+            setattr(args, k, v)
+
+        # (Optuna pruning at trial level)
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+        fold_losses = []
+        for fold_id, (tr_idx, val_idx) in enumerate(kf.split(range(len(train_loader.dataset)))):
+            fold_loss = _run_fold(args, fold_id, tr_idx, val_idx)
+            fold_losses.append(fold_loss)
+
+            # report intermediate result so Optuna can prune early
+            trial.report(fold_loss, step=fold_id)
+            if trial.should_prune():
+                raise optuna.exceptions.TrialPruned()
+
+        return float(np.mean(fold_losses))
+
+    # ----------------------------------------------------------
+    # Launch the study
+    # ----------------------------------------------------------
+    sampler  = optuna.samplers.TPESampler(seed=seed)
+    pruner   = optuna.pruners.MedianPruner(n_warmup_steps=1)
+    study    = optuna.create_study(direction=direction,
+                                   sampler=sampler,
+                                   pruner=pruner)
+
+    start = time.time()
+    study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
+    print(f"Tuning finished in {(time.time()-start)/60:.1f} min")
+    print("Best value  :", study.best_value)
+    print("Best params :", study.best_params)
+
+    return study.best_params, study
+# ---------------------------------------------------------------------
+
+#######################################################################
+# Example usage in your main script (after loading data)
+#######################################################################
+# base_args = get_args()              # however you currently build your Namespace
+# train_loader, test_loader = ...
+# best_params, study = tune_timexer(base_args, train_loader, n_trials=80, n_splits=5)
+
+# # Now train a *final* model on the entire training set with the best params,
+# # then evaluate on test_loader exactly once.
+# for k, v in best_params.items():
+#     setattr(base_args, k, v)
+# final_exp = Exp_Long_Term_Forecast(base_args)
+# final_exp.train(train_loader)       # your usual training routine
+# final_metric = final_exp.evaluate(test_loader)
+# print("Test MSE:", final_metric)

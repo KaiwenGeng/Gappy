@@ -65,7 +65,22 @@ class WeightedSmoothL1Loss(nn.Module):
         return loss_per_sample.sum() / (weight.sum() + self.eps)
 
 
-#  conda install cudatoolkit==11.8 -c nvidia
-#  pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu118
-# !pip install causal_conv1d==1.4.0
-# !pip install mamba_ssm==2.2.2
+torch.manual_seed(123)
+N  = 10
+ŷ  = torch.randn(N, 1)
+y   = torch.randn(N)
+
+# 1) All‑equal weights → identical to nn.SmoothL1Loss
+w_equal = torch.full((N,), 2.5)
+crit    = WeightedSmoothL1Loss(beta=1.0)           # mean reduction
+ref     = nn.SmoothL1Loss(beta=1.0)(ŷ.squeeze(), y)
+got     = crit(ŷ, y, w_equal)
+print(ref, got)
+assert torch.allclose(ref, got), "Should match nn.SmoothL1Loss when weights equal"
+
+# 2) Different weights → matches hand calculation
+w = torch.linspace(0.5, 3.0, N)
+hand = (w * F.smooth_l1_loss(ŷ.squeeze(), y, beta=1.0, reduction='none')).sum() / w.sum()
+got  = crit(ŷ, y, w)
+print(hand, got)
+assert torch.allclose(hand, got), "Weighted mean incorrect"

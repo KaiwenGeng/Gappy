@@ -279,3 +279,24 @@ hand = (w * (ŷ.squeeze() - y) ** 2).sum() / w.sum()
 got  = crit(ŷ, y, w)
 print(hand, got)
 assert torch.allclose(hand, got), "Weighted mean incorrect"
+
+
+
+
+
+class ExoMixerGLU(nn.Module):
+    def __init__(self, n_exo=6, hidden=16):
+        super().__init__()
+        self.pre  = nn.Linear(n_exo, hidden * 2)  # value | gate
+        self.glu  = nn.GLU(dim=-1)
+        self.post = nn.Linear(hidden, 1)         # back to scalar
+
+    def forward(self, exo_pred):                 # [bs, T, 6]
+        x = self.pre(exo_pred)                   # [bs, T, 32]
+        x = self.glu(x)                          # [bs, T, 16]
+        return self.post(x).squeeze(-1)          # [bs, T]
+
+core = dec_out[:, :, -1]            # CI forecast of the target
+exo  = dec_out[:, :, :-1]           # 6 exogenous series
+pred = core + self.exo_mixer(exo)   # blended result
+return pred

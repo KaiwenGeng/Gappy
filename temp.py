@@ -256,3 +256,26 @@ def tune_timexer(
 # final_exp.train(train_loader)       # your usual training routine
 # final_metric = final_exp.evaluate(test_loader)
 # print("Test MSE:", final_metric)
+
+
+
+
+torch.manual_seed(42)
+N   = 8
+ŷ   = torch.randn(N, 1)
+y    = torch.randn(N)
+crit = WeightedMSELoss()           # default reduction='mean'
+
+# 1) All weights equal  → identical to nn.MSELoss
+w = torch.full((N,), 7.3)
+ref = nn.MSELoss()(ŷ.squeeze(), y)
+got = crit(ŷ, y, w)
+print(ref, got)
+assert torch.allclose(ref, got), "Should match nn.MSELoss when weights equal"
+
+# 2) Different weights  → matches hand calculation
+w = torch.tensor([1., 0.5, 2., 3., 1., 4., 1.2, 0.7])
+hand = (w * (ŷ.squeeze() - y) ** 2).sum() / w.sum()
+got  = crit(ŷ, y, w)
+print(hand, got)
+assert torch.allclose(hand, got), "Weighted mean incorrect"

@@ -300,3 +300,27 @@ core = dec_out[:, :, -1]            # CI forecast of the target
 exo  = dec_out[:, :, :-1]           # 6 exogenous series
 pred = core + self.exo_mixer(exo)   # blended result
 return pred
+
+
+
+
+
+
+
+class ExoMixerGLU(nn.Module):
+    def __init__(self, n_exo=6, hidden=16, gate_bias=-4.0):
+        super().__init__()
+        self.pre = nn.Linear(n_exo, hidden * 2)   # value | gate
+        nn.init.xavier_uniform_(self.pre.weight)
+        # set the biases: first half (value) = 0, second half (gate) = gate_bias
+        with torch.no_grad():
+            self.pre.bias[:hidden].zero_()
+            self.pre.bias[hidden:].fill_(gate_bias)
+
+        self.glu  = nn.GLU(dim=-1)
+        self.post = nn.Linear(hidden, 1)
+
+    def forward(self, exo_pred):                  # [bs,T,n_exo]
+        x = self.pre(exo_pred)
+        x = self.glu(x)                           # gate starts near 0
+        return self.post(x).squeeze(-1)

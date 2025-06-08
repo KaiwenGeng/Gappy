@@ -324,3 +324,10 @@ class ExoMixerGLU(nn.Module):
         x = self.pre(exo_pred)
         x = self.glu(x)                           # gate starts near 0
         return self.post(x).squeeze(-1)
+
+
+mu  = core.mean(dim=1, keepdim=True)                        # [B, 1]
+std = core.std (dim=1, keepdim=True, unbiased=False).clamp_min(1e-6)
+
+# ── 2.  Broadcast and normalise the exogenous slice  ───────────────────
+exo = (exo - mu.unsqueeze(-1)) / std.unsqueeze(-1)          # [B, T, k]

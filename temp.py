@@ -331,3 +331,63 @@ std = core.std (dim=1, keepdim=True, unbiased=False).clamp_min(1e-6)
 
 # ── 2.  Broadcast and normalise the exogenous slice  ───────────────────
 exo = (exo - mu.unsqueeze(-1)) / std.unsqueeze(-1)          # [B, T, k]
+
+
+
+from sklearn.model_selection import TimeSeriesSplit
+
+X = train_year_df[feature_cols]
+y = train_year_df[target_col]
+
+# e.g. 5 folds over time
+tscv = TimeSeriesSplit(n_splits=5)
+
+
+import xgboost as xgb
+import pandas as pd
+
+# prepare a DataFrame to hold cumulative importances
+importances = pd.DataFrame(index=feature_cols)
+importances['gain'] = 0.0
+
+for train_idx, val_idx in tscv.split(X):
+    X_tr, X_val = X.iloc[train_idx], X.iloc[val_idx]
+    y_tr, y_val = y.iloc[train_idx], y.iloc[val_idx]
+
+    model = xgb.XGBRegressor(
+        n_estimators=200,
+        learning_rate=0.05,
+        max_depth=6,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=42,
+    )
+    model.fit(
+        X_tr, y_tr,
+        eval_set=[(X_val, y_val)],
+        early_stopping_rounds=10,
+        verbose=False
+    )
+
+    # get raw gain importances
+    booster = model.get_booster()
+    fold_gain = booster.get_score(importance_type='gain')
+    # map from 'f0', 'f1'… back to your feature names
+    fold_gain = {
+        feature_cols[int(k[1:])]: v
+        for k, v in fold_gain.items()
+    }
+    # add to cumulative sum (missing features get 0)
+    for feat, g in fold_gain.items():
+        importances.at[feat, 'gain'] += g
+
+# average across folds
+importances['gain'] /= tscv.get_n_splits()
+# sort descending
+importances = importances.sort_values('gain', ascending=False)
+
+top_k = 50
+selected_feats = importances.head(top_k).index.tolist()
+
+thresh = 0.01
+selected_feats = importances[importances['gain'] > thresh].index.tolist()

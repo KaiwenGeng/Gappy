@@ -391,3 +391,50 @@ selected_feats = importances.head(top_k).index.tolist()
 
 thresh = 0.01
 selected_feats = importances[importances['gain'] > thresh].index.tolist()
+
+
+import xgboost as xgb
+import pandas as pd
+from sklearn.model_selection import TimeSeriesSplit
+
+X = train_year_df[feature_cols]
+y = train_year_df[target_col]
+
+# 1) prepare a Series to accumulate “gain”
+importances = pd.Series(0.0, index=feature_cols)
+
+tscv = TimeSeriesSplit(n_splits=5)
+for train_idx, val_idx in tscv.split(X):
+    X_tr, X_val = X.iloc[train_idx], X.iloc[val_idx]
+    y_tr, y_val = y.iloc[train_idx], y.iloc[val_idx]
+
+    model = xgb.XGBRegressor(
+        n_estimators=200,
+        learning_rate=0.05,
+        max_depth=6,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=42,
+    )
+    model.fit(
+        X_tr, y_tr,
+        eval_set=[(X_val, y_val)],
+        early_stopping_rounds=10,
+        verbose=False,
+    )
+
+    # 2) grab the raw gain dict (keys *may* be f0,f1 or your real feature names)
+    raw_gain: dict = model.get_booster().get_score(importance_type='gain')
+
+    # 3) turn it into a Series, reindex to ALL your features, fill missing with 0
+    fold_gain = pd.Series(raw_gain).reindex(feature_cols).fillna(0.0)
+
+    # 4) accumulate
+    importances += fold_gain
+
+# 5) average and sort
+importances /= tscv.get_n_splits()
+importances = importances.sort_values(ascending=False)
+
+# now pick top-k or threshold:
+top_50 = importances.head(50).index.tolist()

@@ -66,3 +66,42 @@ if args.use_gpu and args.use_multi_gpu and has_cuda:
     print(f"Multi-GPU mode → local ids {args.device_ids}")
 else:
     args.device_ids = [0] if has_cuda else []
+
+
+
+def _acquire_device(self):
+    """
+    Decide where this process should run.
+    Works both on a plain machine and inside a Ray worker.
+    """
+    # --------------------------- CUDA ---------------------------
+    if self.args.use_gpu and self.args.gpu_type == "cuda" and torch.cuda.is_available():
+        visible_gpu_count = torch.cuda.device_count()    # after Ray masking
+        # Pick the first visible GPU; Ray guarantees that is id 0.
+        device = torch.device("cuda")
+        msg = f"Use GPU 0 (physical id(s): {os.getenv('CUDA_VISIBLE_DEVICES')})"
+
+        # If the user asked for multi-GPU, expose all local ids.
+        if self.args.use_multi_gpu and visible_gpu_count > 1:
+            self.args.device_ids = list(range(visible_gpu_count))
+            msg += f" | multi-GPU mode → local ids {self.args.device_ids}"
+        else:
+            self.args.device_ids = [0]
+
+        print(msg)
+
+    # --------------------------- Apple M-series ---------------------------
+    elif self.args.use_gpu and self.args.gpu_type == "mps" and hasattr(torch.backends, "mps"):
+        if torch.backends.mps.is_available():
+            device = torch.device("mps")
+            print("Use GPU: mps")
+        else:
+            device = torch.device("cpu")
+            print("MPS unavailable – falling back to CPU")
+
+    # --------------------------- CPU fallback ---------------------------
+    else:
+        device = torch.device("cpu")
+        print("Use CPU")
+
+    return device

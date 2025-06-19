@@ -105,3 +105,73 @@ def _acquire_device(self):
         print("Use CPU")
 
     return device
+
+
+
+import torch, numpy as np, shap
+
+def shap_feature_importance(
+    model,
+    train_loader,
+    test_loader,
+    *,
+    device: torch.device | str = "cpu",
+    n_background: int = 128,
+    n_explain:    int = 64,
+    feature_names: list[str] | None = None,
+):
+    """
+    Global per-feature SHAP importance for finance sequence models.
+
+    Each loader must yield dicts with key "features" shaped (N_d, 121, 6).
+    """
+
+    device = torch.device(device)
+    model.eval().to(device)
+
+    # ---------- 1. grab background sequences --------------------------------
+    need = n_background
+    bg_list = []
+    for batch in train_loader:                   # shuffled, good random mix
+        x = batch["features"].to(device)
+        take = min(need, x.shape[0])
+        bg_list.append(x[:take])
+        need -= take
+        if need == 0:
+            break
+    background = torch.cat(bg_list)              # (n_background, 121, 6)
+
+    # ---------- 2. grab sequences to explain --------------------------------
+    need = n_explain
+    ex_list = []
+    for batch in test_loader:                    # not shuffled – fine
+        x = batch["features"].to(device)
+        take = min(need, x.shape[0])
+        ex_list.append(x[:take])
+        need -= take
+        if need == 0:
+            break
+    explain_x = torch.cat(ex_list)               # (n_explain, 121, 6)
+
+    # ---------- 3. choose explainer -----------------------------------------
+    try:
+        explainer = shap.DeepExplainer(model, background)
+    except Exception:
+        explainer = shap.GradientExplainer(model, background)
+
+    shap_vals = explainer.shap_values(explain_x)  # returns np.array (n,121,6)
+    if isinstance(shap_vals, list):               # just in case
+        shap_vals = shap_vals[0]
+
+    shap_vals = torch.as_tensor(shap_vals, device=device)
+
+    # ---------- 4. aggregate over samples & time -----------------------------
+    importance = shap_vals.abs().mean(dim=(0, 1)).cpu().numpy()   # (6,)
+
+    if feature_names is not None:
+        order = importance.argsort()[::-1]
+        print("Top-10 drivers:")
+        for i in order:
+            print(f"{feature_names[i]:<20s}  {importance[i]:.4g}")
+
+    return importance

@@ -107,71 +107,70 @@ def _acquire_device(self):
     return device
 
 
+import torch
+from captum.attr import IntegratedGradients
+from typing import Callable, Iterable, Tuple, Union
 
-import torch, numpy as np, shap
-
-def shap_feature_importance(
-    model,
-    train_loader,
-    test_loader,
+def integrated_gradients_heatmap(
+    model: torch.nn.Module,
+    data_loader: Iterable[Tuple[torch.Tensor, torch.Tensor]],
     *,
-    device: torch.device | str = "cpu",
-    n_background: int = 128,
-    n_explain:    int = 64,
-    feature_names: list[str] | None = None,
-):
+    device: Union[str, torch.device] = "cuda",
+    n_steps: int = 64,
+    baseline_fn: Callable[[torch.Tensor], torch.Tensor] | None = None,
+) -> torch.Tensor:
     """
-    Global per-feature SHAP importance for finance sequence models.
+    Compute an (seq_len × n_feat) attribution map with Integrated Gradients.
 
-    Each loader must yield dicts with key "features" shaped (N_d, 121, 6).
+    Parameters
+    ----------
+    model : nn.Module
+        Already-trained network. Forward(x) must return shape [batch] or [batch, 1].
+    data_loader : iterable
+        Yields batches X (or (X, y)) where X has shape [B, seq_len, n_feat].
+    device : str | torch.device, default "cuda"
+        Where the computation runs.
+    n_steps : int, default 64
+        Number of IG interpolation steps (higher = smoother, slower).
+    baseline_fn : callable(X) → baseline, optional
+        Generates a reference tensor of identical shape to X.
+        If None, a zero tensor is used.
+
+    Returns
+    -------
+    torch.Tensor
+        Heat-map of absolute attributions, shape [seq_len, n_feat],
+        averaged over all samples in `data_loader`.
     """
+    model = model.to(device).eval()
+    ig = IntegratedGradients(model)
 
-    device = torch.device(device)
-    model.eval().to(device)
+    heat_accum = None        # will become [seq_len, n_feat]
+    sample_count = 0
 
-    # ---------- 1. grab background sequences --------------------------------
-    need = n_background
-    bg_list = []
-    for batch in train_loader:                   # shuffled, good random mix
-        x = batch["features"].to(device)
-        take = min(need, x.shape[0])
-        bg_list.append(x[:take])
-        need -= take
-        if need == 0:
-            break
-    background = torch.cat(bg_list)              # (n_background, 121, 6)
+    for batch in data_loader:
+        # handle loaders that return (X, y) or just X
+        X = batch[0] if isinstance(batch, (list, tuple)) else batch
+        X = X.to(device)
 
-    # ---------- 2. grab sequences to explain --------------------------------
-    need = n_explain
-    ex_list = []
-    for batch in test_loader:                    # not shuffled – fine
-        x = batch["features"].to(device)
-        take = min(need, x.shape[0])
-        ex_list.append(x[:take])
-        need -= take
-        if need == 0:
-            break
-    explain_x = torch.cat(ex_list)               # (n_explain, 121, 6)
+        B, seq_len, n_feat = X.shape
+        if baseline_fn is None:
+            baseline = torch.zeros_like(X)
+        else:
+            baseline = baseline_fn(X).to(device)
 
-    # ---------- 3. choose explainer -----------------------------------------
-    try:
-        explainer = shap.DeepExplainer(model, background)
-    except Exception:
-        explainer = shap.GradientExplainer(model, background)
+        # Integrated Gradients
+        attr = ig.attribute(
+            inputs=X,
+            baselines=baseline,
+            n_steps=n_steps,
+            target=None,          # whatever forward() returns
+        ).abs()                  # keep magnitude only
 
-    shap_vals = explainer.shap_values(explain_x)  # returns np.array (n,121,6)
-    if isinstance(shap_vals, list):               # just in case
-        shap_vals = shap_vals[0]
+        # accumulate
+        attr_sum = attr.sum(dim=0)           # [seq_len, n_feat]
+        heat_accum = attr_sum if heat_accum is None else heat_accum + attr_sum
+        sample_count += B
 
-    shap_vals = torch.as_tensor(shap_vals, device=device)
-
-    # ---------- 4. aggregate over samples & time -----------------------------
-    importance = shap_vals.abs().mean(dim=(0, 1)).cpu().numpy()   # (6,)
-
-    if feature_names is not None:
-        order = importance.argsort()[::-1]
-        print("Top-10 drivers:")
-        for i in order:
-            print(f"{feature_names[i]:<20s}  {importance[i]:.4g}")
-
-    return importance
+    heat_mean = heat_accum / sample_count     # average over all samples
+    return heat_mean.cpu()                    # move to CPU for convenience

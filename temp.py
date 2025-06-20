@@ -174,3 +174,32 @@ def integrated_gradients_heatmap(
 
     heat_mean = heat_accum / sample_count     # average over all samples
     return heat_mean.cpu()                    # move to CPU for convenience
+
+
+def plot_ig_heatmap(heat: torch.Tensor,
+                    feature_names=None,
+                    title="Integrated Gradients importance"):
+    """Visualise a (time-lag × feature) tensor as a heat-map."""
+    heat_np = heat.numpy()               # move to CPU & np
+
+    seq_len, n_features = heat_np.shape
+    if feature_names is None:
+        feature_names = [f"f{i}" for i in range(n_features)]
+
+    # y-ticks: 0 = most recent bar (easier to read for traders)
+    ytick = list(range(seq_len))[::-1]   # flip so 0 is at bottom
+    ylabels = [f"{-i}" for i in ytick]   # “-5” means 5 bars back
+
+    plt.figure(figsize=(1.2 * n_features, 0.25 * seq_len + 2))
+    ax = sns.heatmap(
+        heat_np[::-1],                   # flip rows for recency
+        cmap="rocket_r",                 # dark = unimportant, bright = important
+        xticklabels=feature_names,
+        yticklabels=ylabels,
+        cbar_kws={"label": "|IG| (avg over samples)"}
+    )
+    ax.set_xlabel("Feature")
+    ax.set_ylabel("Bars back (0 = today)")
+    ax.set_title(title)
+    plt.tight_layout()
+    plt.show()

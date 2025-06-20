@@ -203,3 +203,7 @@ def plot_ig_heatmap(heat: torch.Tensor,
     ax.set_title(title)
     plt.tight_layout()
     plt.show()
+
+
+
+    I'm using captum attr to do feature importance analysis. When I run it on my trained lstm, everything looks find, the most recent days give higher value while dates that are back in days gives less. For instance, i observe that at lookback 1 most features are relatively important,  while as we go back in time until end of my lookback window, like 121, is basically very low. However, when I run it my trained mamba, I noticed the exact behavior but one big difference: at the exact tail of my lookback window, ie day 121, the importance is huge, almost the same as the most recent days. This is Not even on day 120, 119, as their importance are also very low which is expected.  The importance is just high at the exact tail of my lookback... Is this saying my mamba model is wrong? If not, what's the explanation for that? My entire pipeline is the same other than the seq2seq part..

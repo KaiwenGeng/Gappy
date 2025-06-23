@@ -1,62 +1,319 @@
-[kg15317@prdobhfml01 ~]$ pip install --trusted-host github.com https://github.com/state-spaces/mamba/releases/download/v2.2.2/mamba_ssm-2.2.2+cu118torch2.0cxx11abiFALSE-cp311-cp311-linux_x86_64.whl
-Defaulting to user installation because normal site-packages is not writeable
-Collecting mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse
-  Downloading https://github.com/state-spaces/mamba/releases/download/v2.2.2/mamba_ssm-2.2.2+cu118torch2.0cxx11abiFALSE-cp311-cp311-linux_x86_64.whl (343.4 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 343.4/343.4 MB 323.5 MB/s eta 0:00:00
-Requirement already satisfied: torch in /home/kg15317/.local/lib/python3.11/site-packages (from mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (2.3.1+cu118)
-Requirement already satisfied: packaging in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (23.2)
-Requirement already satisfied: ninja in /home/kg15317/.local/lib/python3.11/site-packages (from mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (1.11.1.4)
-Requirement already satisfied: einops in /home/kg15317/.local/lib/python3.11/site-packages (from mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (0.8.0)
-Requirement already satisfied: triton in /home/kg15317/.local/lib/python3.11/site-packages (from mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (2.3.1)
-Requirement already satisfied: transformers in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (4.46.2)
-Requirement already satisfied: filelock in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (3.18.0)
-Requirement already satisfied: typing-extensions>=4.8.0 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (4.12.2)
-Requirement already satisfied: sympy in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (1.12)
-Requirement already satisfied: networkx in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (3.5)
-Requirement already satisfied: jinja2 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (3.1.6)
-Requirement already satisfied: fsspec in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (2025.3.0)
-Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.8.89 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (11.8.89)
-Requirement already satisfied: nvidia-cuda-runtime-cu11==11.8.89 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (11.8.89)
-Requirement already satisfied: nvidia-cuda-cupti-cu11==11.8.87 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (11.8.87)
-Requirement already satisfied: nvidia-cudnn-cu11==8.7.0.84 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (8.7.0.84)
-Requirement already satisfied: nvidia-cublas-cu11==11.11.3.6 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (11.11.3.6)
-Requirement already satisfied: nvidia-cufft-cu11==10.9.0.58 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (10.9.0.58)
-Requirement already satisfied: nvidia-curand-cu11==10.3.0.86 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (10.3.0.86)
-Requirement already satisfied: nvidia-cusolver-cu11==11.4.1.48 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (11.4.1.48)
-Requirement already satisfied: nvidia-cusparse-cu11==11.7.5.86 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (11.7.5.86)
-Requirement already satisfied: nvidia-nccl-cu11==2.20.5 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (2.20.5)
-Requirement already satisfied: nvidia-nvtx-cu11==11.8.86 in /home/kg15317/.local/lib/python3.11/site-packages (from torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (11.8.86)
-Requirement already satisfied: MarkupSafe>=2.0 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from jinja2->torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (3.0.2)
-Requirement already satisfied: mpmath>=0.19 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from sympy->torch->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (1.3.0)
-Requirement already satisfied: huggingface-hub<1.0,>=0.23.2 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (0.33.0)
-Requirement already satisfied: numpy>=1.17 in /home/kg15317/.local/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (1.23.5)
-Requirement already satisfied: pyyaml>=5.1 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (6.0.2)
-Requirement already satisfied: regex!=2019.12.17 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (2024.11.6)
-Requirement already satisfied: requests in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (2.32.4)
-Requirement already satisfied: safetensors>=0.4.1 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (0.4.5)
-Requirement already satisfied: tokenizers<0.21,>=0.20 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (0.20.3)
-Requirement already satisfied: tqdm>=4.27 in /home/kg15317/.local/lib/python3.11/site-packages (from transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (4.64.1)
-Requirement already satisfied: hf-xet<2.0.0,>=1.1.2 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from huggingface-hub<1.0,>=0.23.2->transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (1.1.4)
-Requirement already satisfied: charset_normalizer<4,>=2 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from requests->transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (3.4.2)
-Requirement already satisfied: idna<4,>=2.5 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from requests->transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (3.7)
-Requirement already satisfied: urllib3<3,>=1.21.1 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from requests->transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (1.26.20)
-Requirement already satisfied: certifi>=2017.4.17 in /mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages (from requests->transformers->mamba-ssm==2.2.2+cu118torch2.0cxx11abifalse) (2025.6.15)
-Installing collected packages: mamba-ssm
-Successfully installed mamba-ssm-2.2.2
 
-
-
-pip install --trusted-host github.com https://github.com/state-spaces/mamba/releases/download/v2.2.2/mamba_ssm-2.2.2+cu118torch2.0cxx11abiFALSE-cp311-cp311-linux_x86_64.whl
-
-
-
-
-[kg15317@prdobhfml01 ~]$ python temp.py 
+what's the issue here?
+06/23/2025 13:42:32.276 [ 1872850 ] ERROR: Unable to finish job 0 due to exception ray::ray_process_job() (pid=8451, ip=10.204.240.62)
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mlresearch/aws/ray_parallelization.py", line 47, in ray_process_job
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/execute/execute_Hydra.py", line 21, in run_Hydra
+    best_model, metrics, y_true, y_pred, weight = run_rolling_window(target_cols, sample_weight_cols, predictor_cols, pred_len, training_years, val_year, lookback, args, setting)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/exp/run_rolling_window.py", line 91, in run_rolling_window
+    best_model, exp_train_loss, exp_vali_loss,exp_train_pearson, exp_vali_pearson, exp_train_spearman, exp_vali_spearman = exp.train(setting)
+                                                                                                                           ^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/exp/Forecast.py", line 295, in train
+    outputs = self.model(batch_x)
+              ^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 72, in forward
+    dec_out = self.forecast(x_enc, x_mark_enc)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 63, in forecast
+    enc_out  = self.encoder(enc_out)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 43, in forward
+    x = layer(x)
+        ^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 27, in forward
+    x = self.hydra(x)
+        ^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/hydra/hydra/modules/hydra.py", line 134, in forward
+    return hydra_split_conv1d_scan_combined(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/autograd/function.py", line 598, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/cuda/amp/autocast_mode.py", line 115, in decorate_fwd
+    return fwd(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/hydra/hydra/modules/ops.py", line 125, in forward
+    scan = _mamba_chunk_scan_combined_fwd(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_combined.py", line 313, in _mamba_chunk_scan_combined_fwd
+    states = _chunk_state_fwd(B, x, dt, dA_cumsum, seq_idx=seq_idx, states_in_fp32=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_chunk_state.py", line 746, in _chunk_state_fwd
+    _chunk_state_fwd_kernel[grid](
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/jit.py", line 167, in <lambda>
+    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 143, in run
+    timings = {config: self._bench(*args, config=config, **kwargs) for config in pruned_configs}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 143, in <dictcomp>
+    timings = {config: self._bench(*args, config=config, **kwargs) for config in pruned_configs}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 122, in _bench
+    return do_bench(kernel_call, warmup=self.warmup, rep=self.rep, quantiles=(0.5, 0.2, 0.8))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/testing.py", line 102, in do_bench
+    fn()
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 110, in kernel_call
+    self.fn.run(
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/jit.py", line 416, in run
+    self.cache[device][key] = compile(
+                              ^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/compiler.py", line 193, in compile
+    next_module = compile_ir(module, metadata)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/backends/cuda.py", line 199, in <lambda>
+    stages["llir"] = lambda src, metadata: self.make_llir(src, metadata, options, self.capability)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/backends/cuda.py", line 173, in make_llir
+    ret = translate_triton_gpu_to_llvmir(src, capability, tma_infos, runtime.TARGET.NVVM)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: map::at!
+ Traceback (most recent call last):
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mlresearch/aws/ray_parallelization.py", line 33, in process_single_result
+    result = ray.get(receipt_)
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/_private/auto_init_hook.py", line 21, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/_private/client_mode_hook.py", line 102, in wrapper
+    return getattr(ray, func.__name__)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/util/client/api.py", line 42, in get
+    return self.worker.get(vals, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/util/client/worker.py", line 433, in get
+    res = self._get(to_get, op_timeout)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/util/client/worker.py", line 461, in _get
+    raise err
+ray.exceptions.RayTaskError(IndexError): ray::ray_process_job() (pid=8451, ip=10.204.240.62)
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mlresearch/aws/ray_parallelization.py", line 47, in ray_process_job
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/execute/execute_Hydra.py", line 21, in run_Hydra
+    best_model, metrics, y_true, y_pred, weight = run_rolling_window(target_cols, sample_weight_cols, predictor_cols, pred_len, training_years, val_year, lookback, args, setting)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/exp/run_rolling_window.py", line 91, in run_rolling_window
+    best_model, exp_train_loss, exp_vali_loss,exp_train_pearson, exp_vali_pearson, exp_train_spearman, exp_vali_spearman = exp.train(setting)
+                                                                                                                           ^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/exp/Forecast.py", line 295, in train
+    outputs = self.model(batch_x)
+              ^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 72, in forward
+    dec_out = self.forecast(x_enc, x_mark_enc)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 63, in forecast
+    enc_out  = self.encoder(enc_out)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 43, in forward
+    x = layer(x)
+        ^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 27, in forward
+    x = self.hydra(x)
+        ^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/hydra/hydra/modules/hydra.py", line 134, in forward
+    return hydra_split_conv1d_scan_combined(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/autograd/function.py", line 598, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/cuda/amp/autocast_mode.py", line 115, in decorate_fwd
+    return fwd(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/hydra/hydra/modules/ops.py", line 125, in forward
+    scan = _mamba_chunk_scan_combined_fwd(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_combined.py", line 313, in _mamba_chunk_scan_combined_fwd
+    states = _chunk_state_fwd(B, x, dt, dA_cumsum, seq_idx=seq_idx, states_in_fp32=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_chunk_state.py", line 746, in _chunk_state_fwd
+    _chunk_state_fwd_kernel[grid](
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/jit.py", line 167, in <lambda>
+    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 143, in run
+    timings = {config: self._bench(*args, config=config, **kwargs) for config in pruned_configs}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 143, in <dictcomp>
+    timings = {config: self._bench(*args, config=config, **kwargs) for config in pruned_configs}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 122, in _bench
+    return do_bench(kernel_call, warmup=self.warmup, rep=self.rep, quantiles=(0.5, 0.2, 0.8))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/testing.py", line 102, in do_bench
+    fn()
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 110, in kernel_call
+    self.fn.run(
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/jit.py", line 416, in run
+    self.cache[device][key] = compile(
+                              ^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/compiler.py", line 193, in compile
+    next_module = compile_ir(module, metadata)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/backends/cuda.py", line 199, in <lambda>
+    stages["llir"] = lambda src, metadata: self.make_llir(src, metadata, options, self.capability)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/backends/cuda.py", line 173, in make_llir
+    ret = translate_triton_gpu_to_llvmir(src, capability, tma_infos, runtime.TARGET.NVVM)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: map::at
 Traceback (most recent call last):
-  File "/data01/home/kg15317/temp.py", line 2, in <module>
-    from mamba_ssm import Mamba
-  File "/home/kg15317/.local/lib/python3.11/site-packages/mamba_ssm/__init__.py", line 3, in <module>
-    from mamba_ssm.ops.selective_scan_interface import selective_scan_fn, mamba_inner_fn
-  File "/home/kg15317/.local/lib/python3.11/site-packages/mamba_ssm/ops/selective_scan_interface.py", line 16, in <module>
-    import selective_scan_cuda
-ImportError: /home/kg15317/.local/lib/python3.11/site-packages/selective_scan_cuda.cpython-311-x86_64-linux-gnu.so: undefined symbol: _ZN2at4_ops10zeros_like4callERKNS_6TensorEN3c108optionalINS5_10ScalarTypeEEENS6_INS5_6LayoutEEENS6_INS5_6DeviceEEENS6_IbEENS6_INS5_12MemoryFormatEEE
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mlresearch/aws/ray_parallelization.py", line 33, in process_single_result
+    result = ray.get(receipt_)
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/_private/auto_init_hook.py", line 21, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/_private/client_mode_hook.py", line 102, in wrapper
+    return getattr(ray, func.__name__)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/util/client/api.py", line 42, in get
+    return self.worker.get(vals, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/util/client/worker.py", line 433, in get
+    res = self._get(to_get, op_timeout)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/ray/util/client/worker.py", line 461, in _get
+    raise err
+ray.exceptions.RayTaskError(IndexError): ray::ray_process_job() (pid=8451, ip=10.204.240.62)
+  File "/mnt/netapp_hfalgo/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mlresearch/aws/ray_parallelization.py", line 47, in ray_process_job
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/execute/execute_Hydra.py", line 21, in run_Hydra
+    best_model, metrics, y_true, y_pred, weight = run_rolling_window(target_cols, sample_weight_cols, predictor_cols, pred_len, training_years, val_year, lookback, args, setting)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/exp/run_rolling_window.py", line 91, in run_rolling_window
+    best_model, exp_train_loss, exp_vali_loss,exp_train_pearson, exp_vali_pearson, exp_train_spearman, exp_vali_spearman = exp.train(setting)
+                                                                                                                           ^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/exp/Forecast.py", line 295, in train
+    outputs = self.model(batch_x)
+              ^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 72, in forward
+    dec_out = self.forecast(x_enc, x_mark_enc)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 63, in forecast
+    enc_out  = self.encoder(enc_out)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 43, in forward
+    x = layer(x)
+        ^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/Hydra.py", line 27, in forward
+    x = self.hydra(x)
+        ^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/hydra/hydra/modules/hydra.py", line 134, in forward
+    return hydra_split_conv1d_scan_combined(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/autograd/function.py", line 598, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/torch/cuda/amp/autocast_mode.py", line 115, in decorate_fwd
+    return fwd(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ua_1872850/seq2seq_alpha/seq2seq_alpha/models/hydra/hydra/modules/ops.py", line 125, in forward
+    scan = _mamba_chunk_scan_combined_fwd(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_combined.py", line 313, in _mamba_chunk_scan_combined_fwd
+    states = _chunk_state_fwd(B, x, dt, dA_cumsum, seq_idx=seq_idx, states_in_fp32=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/mamba_ssm/ops/triton/ssd_chunk_state.py", line 746, in _chunk_state_fwd
+    _chunk_state_fwd_kernel[grid](
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/jit.py", line 167, in <lambda>
+    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 143, in run
+    timings = {config: self._bench(*args, config=config, **kwargs) for config in pruned_configs}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 143, in <dictcomp>
+    timings = {config: self._bench(*args, config=config, **kwargs) for config in pruned_configs}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 122, in _bench
+    return do_bench(kernel_call, warmup=self.warmup, rep=self.rep, quantiles=(0.5, 0.2, 0.8))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/testing.py", line 102, in do_bench
+    fn()
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/autotuner.py", line 110, in kernel_call
+    self.fn.run(
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/runtime/jit.py", line 416, in run
+    self.cache[device][key] = compile(
+                              ^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/compiler.py", line 193, in compile
+    next_module = compile_ir(module, metadata)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/backends/cuda.py", line 199, in <lambda>
+    stages["llir"] = lambda src, metadata: self.make_llir(src, metadata, options, self.capability)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/apps/hfalgo_ext/7d42eb22386/python/Python-3.11.11/lib/python3.11/site-packages/triton/compiler/backends/cuda.py", line 173, in make_llir
+    ret = translate_triton_gpu_to_llvmir(src, capability, tma_infos, runtime.TARGET.NVVM)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: map::at
+06/23/2025 13:42:33.479 [ 1872850 ] INFO: S3FileRetriever: finished 0 of 0 items submitted (0%).
+

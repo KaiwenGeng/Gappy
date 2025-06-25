@@ -28,7 +28,7 @@ class TokenEmbedding(nn.Module):
         exo_raw  = self.exo_conv (exo .permute(0, 2, 1)).transpose(1, 2)
 
         # GLU:  exo_raw = [value, gate];   value * σ(gate)
-        exo_emb  = self.gate(torch.cat([exo_raw, exo_raw], dim=-1))
+        exo_emb = self.gate(exo_raw)  
 
         y = torch.cat([endo_emb, exo_emb], dim=-1)     # [B,L,2d]
         return self.project(y)                         # [B,L,d]

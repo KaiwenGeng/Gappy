@@ -1,11 +1,9 @@
-class UniPatchInput(nn.Module):
-    def __init__(self):
+class ChannelMixer(nn.Module):
+    def __init__(self, C: int):
         super().__init__()
-        self.proj = nn.Linear(5, 2)   # 5 exogenous → 2 channels
-        self.glu  = nn.GLU(dim=-1)    # → 1 channel (gated)
+        self.mix = nn.Conv2d(C, 1, kernel_size=1, bias=True)  # or nn.Linear(C,1)
+
     def forward(self, x):
-        endo = x[..., 5:6]            # endogenous
-        exo  = x[..., :5]             # exogenous
-        exo_mix = self.glu(self.proj(exo))
-        uni     = endo + exo_mix      # final [B, 3000, 121, 1]
-        return uni
+        # x : [B, C, P, D]
+        y = self.mix(x).squeeze(1)        # -> [B, P, D]
+        return y

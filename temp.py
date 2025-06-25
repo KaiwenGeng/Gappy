@@ -7,7 +7,7 @@ class TokenEmbedding(nn.Module):
         super().__init__()
         self.endo_conv = nn.Conv1d(1,          d_model, 3, padding=1,
                                    padding_mode='circular', bias=False)
-        self.exo_conv  = nn.Conv1d(n_exo,      d_model, 3, padding=1,
+        self.exo_conv  = nn.Conv1d(n_exo,      2*d_model, 3, padding=1, 
                                    padding_mode='circular', bias=False)
 
         # *feature-wise* gating that learns when to use the exogenous path

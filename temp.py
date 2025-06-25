@@ -1,16 +1,47 @@
-Sps I'm training a model, where the dataset is noisy (basically residual log return of a universe of 3000 stocks (changes everyday)
+class TokenEmbedding(nn.Module):
+    """
+    Endogenous token  : last column   (…, -1)
+    Exogenous tokens  : all others    (…, :-1)
+    """
+    def __init__(self, c_in: int, d_model: int):
+        super().__init__()
+        c_exo = c_in - 1                       # everything except the return itself
 
-I use a day as a batch, and lookback is 121 days. My input is therefore [3000,121,6], 6 means 6 features per stock (log residual log return, volume, sell side volume, buy side volume, sell short volume). My target is next 10 day return (a scaler). My loss function is market cap weighted mse.
+        # ① separate convolutions
+        self.endo_conv = nn.Conv1d(1, d_model // 2,
+                                   kernel_size=3, padding=1, bias=False)
+        self.exo_conv  = nn.Conv1d(c_exo, d_model // 2,
+                                   kernel_size=3, padding=1,
+                                   groups=c_exo, bias=False)  # depth-wise -> keeps each
+                                                               # variable independent
 
-I want to use seq2seq model, specifically patchTST. However, I would like to merge the 6 variables into a "mixed" variable before I feed into patchTST (ie, we treat it like a univariable task by first mixing the variables), ie, [3000,121,6] into [3000,121,1]. Not: this somehow like an exogenous task
+        # ② feature-wise gating network (1 value per exogenous channel)
+        self.gate = nn.Sequential(
+            nn.AdaptiveAvgPool1d(1),           # (B, c_exo, T) -> (B, c_exo, 1)
+            nn.Flatten(1),                     # (B, c_exo)
+            nn.Linear(c_exo, c_exo, bias=True),
+            nn.Sigmoid()
+        )
 
-Should i:
+        # kaiming init
+        for m in self.modules():
+            if isinstance(m, nn.Conv1d):
+                nn.init.kaiming_normal_(m.weight,
+                                        mode="fan_in",
+                                        nonlinearity="leaky_relu")
 
-1. Mix all 6 together into 1, then patch embedding on the mixed variable to get [3000, 6, number of patches, patch dim]  then transformer
+    def forward(self, x):
+        # x: (B, T, C)   with C = c_exo + 1
+        endo = x[..., -1:].permute(0, 2, 1)      # (B, 1, T)
+        exo  = x[..., :-1].permute(0, 2, 1)      # (B, c_exo, T)
 
+        # ③ learn a relevance weight for every exogenous variable
+        weights = self.gate(exo).unsqueeze(-1)   # (B, c_exo, 1)
+        exo = exo * weights                     # “squeeze-and-excite” style gating
 
-2. Patch embedding, on each variable [3000, 6, number of patches, patch dim]  , mix on the patched result to get [3000, 1, number of patches, patch dim], then transformer
+        # ④ encode each path separately, then concatenate
+        h_endo = self.endo_conv(endo)            # (B, d_model/2, T)
+        h_exo  = self.exo_conv(exo)              # (B, d_model/2, T)
 
-
-
-tell me what I should do and justify
+        h = torch.cat([h_endo, h_exo], dim=1)    # (B, d_model, T)
+        return h.transpose(1, 2)                 # back to (B, T, d_model)

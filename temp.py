@@ -1,6 +1,8 @@
-class GaussianProject(nn.Module):
-    """Rough analogue to tanh, but targets std-normal marginal *if* h~Logistic(0,1)."""
-    def forward(self, h):
-        u = torch.sigmoid(h)                # (0, 1)
-        z = torch.sqrt(torch.tensor(2.0)) * torch.erfinv(2*u - 1)
-        return z
+def cross_sectional_norm(x, eps=1e-6):
+    """
+    x: Tensor with shape (N_stocks, T, F).
+    Returns: z-scored tensor with the same shape.
+    """
+    mean = x.mean(dim=0, keepdim=True)              # shape (1, T, F)
+    std  = x.std(dim=0, unbiased=False, keepdim=True)
+    return (x - mean) / (std + eps)

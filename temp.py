@@ -1,16 +1,11 @@
 class VariableSelection(nn.Module):
-    def __init__(self, num_feat, d_model):
+    def __init__(self, in_dim, hidden=16):
         super().__init__()
-        self.context = nn.GRU(num_feat, d_model, batch_first=True)
-        self.selector = nn.Sequential(
-            nn.Linear(d_model, num_feat),
-            nn.Softmax(dim=-1)
+        self.net = nn.Sequential(
+            nn.Linear(in_dim, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, in_dim)
         )
-        self.proj = nn.Linear(num_feat, d_model)
-
-    def forward(self, x):          # x: (B, T, 6)
-        _, h = self.context(x)     # h: (1, B, d)
-        alpha = self.selector(h.squeeze(0))        # (B, 6)
-        x_sel = (x * alpha.unsqueeze(1)).sum(-1)   # (B, T)
-        emb = self.proj(x_sel)                     # (B, T, d)
-        return emb, alpha   
+    def forward(self, x):                       # (B, T, 6)
+        w = torch.softmax(self.net(x), dim=-1)  # (B, T, 6)
+        return x * w, w  

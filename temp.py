@@ -1,31 +1,22 @@
-meta = torch.cat([
-        obs_rate.squeeze(1),    # [B,N]
-        mean.squeeze(1),        # [B,N]
-        var.squeeze(1)          # [B,N]
-    ], dim=-1)                  # [B,3N]
-meta = torch.cat([meta, market_weight.unsqueeze(-1)], dim=-1)  # [B,3N+1]
-
-
-
-
-class MetaGate(nn.Module):
-    def __init__(self, meta_dim: int, dmodel: int):
+class LatentNorm(nn.Module):
+    """
+    Learn μ, σ from a *light* network that *does not share weights*
+    with the main encoder.  Statistics flow into the normaliser by
+    stop-gradient (no back-prop through them).
+    """
+    def __init__(self, d_model, d_hidden=128):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(meta_dim, 4 * dmodel),
-            nn.ReLU(),
-            nn.Linear(4 * dmodel, dmodel)   # → [B, dmodel]
+        self.mlp = nn.Sequential(
+            nn.AdaptiveAvgPool1d(1),               # pool over time
+            nn.Flatten(),                          # [B, d_model]
+            nn.Linear(d_model, d_hidden), nn.GELU(),
+            nn.Linear(d_hidden, 2 * d_model)       # μ and log σ
         )
 
-    def forward(self, meta, pred_lin, pred_nonlin):
-        # meta:        [B, meta_dim]
-        # pred_lin:    [B, T, dmodel]
-        # pred_nonlin: [B, T, dmodel]
-        alpha = torch.sigmoid(self.net(meta)).unsqueeze(1)  # [B,1,dmodel]
-        return alpha * pred_lin + (1 - alpha) * pred_nonlin 
-
-
-meta_dim = 3 * n_features + 1 
-
-
-mixed_hidden  = self.meta_gate(meta, pred_lin, pred_nonlin) 
+    def forward(self, v_raw):
+        with torch.no_grad():                      # <--- key line
+            stats = self.mlp(v_raw.transpose(1,2)) # [B, 2·d_model]
+        mu, log_sigma = stats.chunk(2, dim=-1)
+        sigma = torch.exp(log_sigma).clamp(1e-3, 1e1)
+        v = (v_raw - mu.unsqueeze(1)) / sigma.unsqueeze(1)
+        return v, mu, sigma

@@ -1,22 +1,5 @@
-class LatentNorm(nn.Module):
-    """
-    Learn μ, σ from a *light* network that *does not share weights*
-    with the main encoder.  Statistics flow into the normaliser by
-    stop-gradient (no back-prop through them).
-    """
-    def __init__(self, d_model, d_hidden=128):
-        super().__init__()
-        self.mlp = nn.Sequential(
-            nn.AdaptiveAvgPool1d(1),               # pool over time
-            nn.Flatten(),                          # [B, d_model]
-            nn.Linear(d_model, d_hidden), nn.GELU(),
-            nn.Linear(d_hidden, 2 * d_model)       # μ and log σ
-        )
+So basically, for every day t, we have an universe of stocks (uni_t) with corresponding next 10 day residual return, which is a scaler. This is our target, and its shape will be [size of uni_t, 1]. As for the input, we get the historical feature data for the universe uni_t. Since our universe changes everyday, we unavoidable will have some 0 placeholders. In this case, our input will be shape [size of uni_t, 126, num_of_features] where 126 is our lookback window length.
 
-    def forward(self, v_raw):
-        with torch.no_grad():                      # <--- key line
-            stats = self.mlp(v_raw.transpose(1,2)) # [B, 2·d_model]
-        mu, log_sigma = stats.chunk(2, dim=-1)
-        sigma = torch.exp(log_sigma).clamp(1e-3, 1e1)
-        v = (v_raw - mu.unsqueeze(1)) / sigma.unsqueeze(1)
-        return v, mu, sigma
+Then we conduct the regression task using custom seq2seq backbone. The loss function can also be customly weighted, which is market cap is this case
+
+Our data starts from 2012 and rolling window validation is conducted since 2017
